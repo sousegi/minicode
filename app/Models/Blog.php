@@ -17,6 +17,7 @@ class Blog extends Model
         'content',
         'image',
         'published',
+        'published_at',
     ];
 
     /**

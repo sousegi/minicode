@@ -7,6 +7,7 @@ use App\Filament\Resources\BlogResource\RelationManagers;
 use App\Models\Blog;
 use Filament\Forms;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Textarea;
@@ -46,6 +47,10 @@ class BlogResource extends Resource
                     ->required()
                     ->columnSpanFull()
                     ->unique(ignoreRecord: true),
+                DateTimePicker::make(name: 'published_at')
+                    ->label(label: 'Data publicării')
+                    ->columnSpanFull()
+                    ->default(now()),
                 RichEditor::make(name: 'content')
                     ->label(label: 'Text articol')
                     ->required()
@@ -71,10 +76,9 @@ class BlogResource extends Resource
                 TextColumn::make(name: 'title')
                     ->label(label: 'Titlu')
                     ->sortable()
+                    ->limit(length: 50)
                     ->searchable(),
-                TextColumn::make(name: 'slug')
-                    ->label(label: 'SEO URL'),
-                TextColumn::make(name: 'created_at')
+                TextColumn::make(name: 'published_at')
                     ->label(label: 'Data adăugării')
                     ->sortable()
                     ->dateTime(),
@@ -84,15 +88,15 @@ class BlogResource extends Resource
                     ->boolean(),
             ])
             ->filters([
-                Filter::make(name: 'created_at')
+                Filter::make(name: 'published_at')
                     ->form([
                         DatePicker::make(name: 'created_from')->label(label: 'De la data'),
                         DatePicker::make(name: 'created_until')->label(label: 'Până la data'),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         return $query
-                            ->when($data['created_from'], fn($q) => $q->whereDate('created_at', '>=', $data['created_from']))
-                            ->when($data['created_until'], fn($q) => $q->whereDate('created_at', '<=', $data['created_until']));
+                            ->when($data['created_from'], fn($q) => $q->whereDate('published_at', '>=', $data['created_from']))
+                            ->when($data['created_until'], fn($q) => $q->whereDate('published_at', '<=', $data['created_until']));
                     }),
             ])
             ->actions([
